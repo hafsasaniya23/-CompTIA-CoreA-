@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompTIA Core+ Certification Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .quiz-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .quiz-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .quiz-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .quiz-header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+        }
+        
+        .quiz-progress {
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--success);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .quiz-body {
+            padding: 30px;
+        }
+        
+        .score-display {
+            background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--secondary);
+        }
+        
+        .question-number {
+            background: var(--secondary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+        
+        .options-container {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .option.selected {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .option.correct {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+        
+        .option.incorrect {
+            border-color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        .option-letter {
+            background: var(--secondary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .option.selected .option-letter,
+        .option.correct .option-letter,
+        .option.incorrect .option-letter {
+            background: var(--dark);
+        }
+        
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-next:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .quiz-results {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .results-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .results-score {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+        
+        .results-message {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .btn-restart {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .category-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .quiz-container {
+                margin: 20px;
+            }
+            
+            .quiz-body {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1><i class="fas fa-certificate"></i> CompTIA Core+ Certification Quiz</h1>
+            <p>Test your knowledge with 100 professional certification questions</p>
+            <div class="quiz-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <div class="quiz-body" id="quizBody">
+            <div class="score-display">
+                <i class="fas fa-trophy"></i> Score: <span id="scoreDisplay">0</span> / <span id="totalQuestions">100</span>
+            </div>
+            
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">Question 1</div>
+                <div class="question-text" id="questionText">Loading question...</div>
+                <div class="options-container" id="optionsContainer">
+                    <!-- Options will be dynamically inserted here -->
+                </div>
+            </div>
+            
+            <div class="quiz-controls">
+                <div>
+                    <span class="category-badge" id="categoryBadge">IT Specialist Role</span>
+                </div>
+                <button class="btn-next" id="nextBtn" disabled>
+                    Next Question <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="quiz-results" id="quizResults" style="display: none;">
+            <div class="results-card">
+                <h2><i class="fas fa-graduation-cap"></i> Quiz Complete!</h2>
+                <div class="results-score" id="finalScore">0%</div>
+                <div class="results-message" id="resultsMessage">Great job completing the quiz!</div>
+            </div>
+            <button class="btn-restart" onclick="location.reload()">
+                <i class="fas fa-redo"></i> Restart Quiz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Questions Database
+        const quizQuestions = [
+            // IT Specialist Role & Troubleshooting
+            {
+                question: "What is the primary role of an IT specialist in an organization?",
+                options: [
+                    "Developing software applications",
+                    "Managing and maintaining IT infrastructure",
+                    "Marketing IT products",
+                    "Conducting financial audits"
+                ],
+                correct: 1,
+                category: "IT Specialist Role"
+            },
+            {
+                question: "Which troubleshooting methodology follows a systematic approach of identifying the problem, establishing a theory, testing the theory, establishing a plan, implementing the plan, and verifying functionality?",
+                options: [
+                    "Shoot-from-the-hip method",
+                    "CompTIA A+ troubleshooting model",
+                    "Waterfall method",
+                    "Agile troubleshooting"
+                ],
+                correct: 1,
+                category: "IT Specialist Role"
+            },
+            {
+                question: "What is the first step in the CompTIA troubleshooting process?",
+                options: [
+                    "Establish a plan of action",
+                    "Identify the problem",
+                    "Test the theory to determine cause",
+                    "Document findings"
+                ],
+                correct: 1,
+                category: "IT Specialist Role"
+            },
+            {
+                question: "Which soft skill is most important for an IT specialist when dealing with frustrated users?",
+                options: [
+                    "Technical expertise",
+                    "Empathy and communication",
+                    "Speed of resolution",
+                    "Knowledge of programming languages"
+                ],
+                correct: 1,
+                category: "IT Specialist Role"
+            },
+            {
+                question: "What does the 'Establish a theory of probable cause' step in troubleshooting involve?",
+                options: [
+                    "Implementing a solution immediately",
+                    "Questioning the obvious and considering multiple possibilities",
+                    "Documenting the solution",
+                    "Verifying full system functionality"
+                ],
+                correct: 1,
+                category: "IT Specialist Role"
+            },
+            
+            // Cables, Connectors & Display Types
+            {
+                question: "Which connector type is commonly used for Ethernet networks and can support speeds up to 10 Gbps?",
+                options: [
+                    "USB-C",
+                    "HDMI",
+                    "RJ45",
+                    "VGA"
+                ],
+                correct: 2,
+                category: "Cables & Connectors"
+            },
+            {
+                question: "What type of cable uses BNC connectors and was commonly used for older coaxial network installations?",
+                options: [
+                    "Fiber optic",
+                    "Twisted pair",
+                    "Coaxial",
+                    "Serial"
+                ],
+                correct: 2,
+                category: "Cables & Connectors"
+            },
+            {
+                question: "Which display interface supports both video and audio signals over a single cable?",
+                options: [
+                    "VGA",
+                    "DVI",
+                    "HDMI",
+                    "RS-232"
+                ],
+                correct: 2,
+                category: "Display Types"
+            },
+            {
+                question: "What is the maximum resolution supported by DisplayPort 1.4?",
+                options: [
+                    "1920x1080",
+                    "2560x1440",
+                    "3840x2160",
+                    "7680x4320"
+                ],
+                correct: 3,
+                category: "Display Types"
+            },
+            {
+                question: "Which connector type is primarily used for connecting monitors to computers and carries analog video signals?",
+                options: [
+                    "HDMI",
+                    "DisplayPort",
+                    "VGA",
+                    "Thunderbolt"
+                ],
+                correct: 2,
+                category: "Display Types"
+            },
+            
+            // Motherboards & Legacy Cables
+            {
+                question: "What is the primary function of the motherboard in a computer system?",
+                options: [
+                    "Processing data",
+                    "Storing information",
+                    "Providing connectivity and communication between components",
+                    "Supplying power to all components"
+                ],
+                correct: 2,
+                category: "Motherboards"
+            },
+            {
+                question: "Which type of motherboard expansion slot is designed for high-performance graphics cards?",
+                options: [
+                    "PCI",
+                    "AGP",
+                    "PCIe x16",
+                    "ISA"
+                ],
+                correct: 2,
+                category: "Motherboards"
+            },
+            {
+                question: "What legacy connector was commonly used for parallel printers before USB became standard?",
+                options: [
+                    "RS-232",
+                    "SCSI",
+                    "Parallel port (DB-25)",
+                    "PS/2"
+                ],
+                correct: 2,
+                category: "Legacy Cables"
+            },
+            {
+                question: "Which BIOS/UEFI setting allows a computer to automatically detect and configure new hardware?",
+                options: [
+                    "Boot sequence",
+                    "Secure Boot",
+                    "Plug and Play",
+                    "Overclocking"
+                ],
+                correct: 2,
+                category: "Motherboards"
+            },
+            {
+                question: "What is the purpose of the CMOS battery on a motherboard?",
+                options: [
+                    "Powering the CPU during operation",
+                    "Maintaining BIOS/UEFI settings when the computer is off",
+                    "Providing backup power to RAM",
+                    "Charging the laptop battery"
+                ],
+                correct: 1,
+                category: "Motherboards"
+            },
+            
+            // Power Supply & Cooling Systems
+            {
+                question: "What does the '80 Plus' rating indicate for a power supply unit (PSU)?",
+                options: [
+                    "The physical size of the PSU",
+                    "The energy efficiency of the PSU",
+                    "The number of connectors available",
+                    "The maximum wattage output"
+                ],
+                correct: 1,
+                category: "Power Supply"
+            },
+            {
+                question: "Which type of cooling solution uses a phase change process to transfer heat away from components?",
+                options: [
+                    "Air cooling",
+                    "Liquid cooling",
+                    "Passive cooling",
+                    "Thermoelectric cooling"
+                ],
+                correct: 1,
+                category: "Cooling Systems"
+            },
+            {
+                question: "What is the primary purpose of thermal paste between a CPU and its heatsink?",
+                options: [
+                    "To provide electrical insulation",
+                    "To fill microscopic gaps and improve heat transfer",
+                    "To prevent corrosion",
+                    "To hold the heatsink in place"
+                ],
+                correct: 1,
+                category: "Cooling Systems"
+            },
+            {
+                question: "Which power supply connector is specifically designed to provide extra power to high-end PCIe graphics cards?",
+                options: [
+                    "Molex",
+                    "SATA power",
+                    "PCIe power",
+                    "EPS12V"
+                ],
+                correct: 2,
+                category: "Power Supply"
+            },
+            {
+                question: "What is the most common cause of power supply failure in computers?",
+                options: [
+                    "Overclocking",
+                    "Dust accumulation and overheating",
+                    "Software conflicts",
+                    "Insufficient RAM"
+                ],
+                correct: 1,
+                category: "Power Supply"
+            },
+            
+            // Storage Devices & Memory
+            {
+                question: "Which type of storage device uses flash memory and has no moving parts?",
+                options: [
+                    "HDD",
+                    "SSD",
+                    "Optical drive",
+                    "Tape drive"
+                ],
+                correct: 1,
+                category: "Storage Devices"
+            },
+            {
+                question: "What is the primary advantage of DDR4 over DDR3 RAM?",
+                options: [
+                    "Lower power consumption and higher speeds",
+                    "Larger physical size",
+                    "Compatibility with older motherboards",
+                    "Lower cost per gigabyte"
+                ],
+                correct: 0,
+                category: "Memory"
+            },
+            {
+                question: "Which RAID level provides disk mirroring for redundancy?",
+                options: [
+                    "RAID 0",
+                    "RAID 1",
+                    "RAID 5",
+                    "RAID 10"
+                ],
+                correct: 1,
+                category: "Storage Devices"
+            },
+            {
+                question: "What is the typical data transfer speed of a SATA III interface?",
+                options: [
+                    "1.5 Gbps",
+                    "3 Gbps",
+                    "6 Gbps",
+                    "12 Gbps"
+                ],
+                correct: 2,
+                category: "Storage Devices"
+            },
+            {
+                question: "Which type of memory is volatile and loses its contents when power is turned off?",
+                options: [
+                    "ROM",
+                    "RAM",
+                    "SSD",
+                    "HDD"
+                ],
+                correct: 1,
+                category: "Memory"
+            },
+            
+            // CPUs & Hardware Troubleshooting
+            {
+                question: "What does the term 'overclocking' refer to in relation to CPUs?",
+                options: [
+                    "Installing multiple CPUs",
+                    "Running a CPU at a higher speed than its rated specification",
+                    "Replacing a CPU with a newer model",
+                    "Underclocking to save power"
+                ],
+                correct: 1,
+                category: "CPUs"
+            },
+            {
+                question: "Which CPU socket type is used by Intel's current mainstream processors?",
+                options: [
+                    "AM4",
+                    "LGA 1700",
+                    "LGA 1200",
+                    "sTRX4"
+                ],
+                correct: 1,
+                category: "CPUs"
+            },
+            {
+                question: "What is the most common symptom of a failing CPU?",
+                options: [
+                    "Loud fan noise",
+                    "System instability and random crashes",
+                    "No display output",
+                    "Slow hard drive performance"
+                ],
+                correct: 1,
+                category: "Hardware Troubleshooting"
+            },
+            {
+                question: "Which tool is used to monitor CPU temperature and performance?",
+                options: [
+                    "Defragmenter",
+                    "Task Manager",
+                    "Disk Cleanup",
+                    "System Restore"
+                ],
+                correct: 1,
+                category: "Hardware Troubleshooting"
+            },
+            {
+                question: "What is the purpose of thermal throttling in modern CPUs?",
+                options: [
+                    "To increase performance",
+                    "To prevent overheating by reducing clock speed",
+                    "To improve power efficiency",
+                    "To extend battery life"
+                ],
+                correct: 1,
+                category: "CPUs"
+            },
+            
+            // Deep Hardware Troubleshooting
+            {
+                question: "Which POST beep code typically indicates a RAM issue on most motherboards?",
+                options: [
+                    "One long beep",
+                    "One short beep",
+                    "Continuous beeping",
+                    "No beeps"
+                ],
+                correct: 2,
+                category: "Deep Hardware Troubleshooting"
+            },
+            {
+                question: "What is the first step to take when a computer won't power on at all?",
+                options: [
+                    "Replace the motherboard",
+                    "Check the power supply and connections",
+                    "Reinstall the operating system",
+                    "Update the BIOS"
+                ],
+                correct: 1,
+                category: "Deep Hardware Troubleshooting"
+            },
+            {
+                question: "Which Windows tool can be used to check for memory errors?",
+                options: [
+                    "Disk Defragmenter",
+                    "Windows Memory Diagnostic",
+                    "System File Checker",
+                    "Device Manager"
+                ],
+                correct: 1,
+                category: "Deep Hardware Troubleshooting"
+            },
+            {
+                question: "What does a blue screen of death (BSOD) typically indicate?",
+                options: [
+                    "A software application crash",
+                    "A critical system error requiring a restart",
+                    "A hardware failure",
+                    "A virus infection"
+                ],
+                correct: 1,
+                category: "Deep Hardware Troubleshooting"
+            },
+            {
+                question: "Which component is most likely to cause random system reboots?",
+                options: [
+                    "Optical drive",
+                    "Power supply",
+                    "Keyboard",
+                    "Mouse"
+                ],
+                correct: 1,
+                category: "Deep Hardware Troubleshooting"
+            },
+            
+            // Networking Overview & Hardware
+            {
+                question: "What is the primary function of a router in a network?",
+                options: [
+                    "To connect devices within the same network",
+                    "To forward data packets between different networks",
+                    "To assign IP addresses",
+                    "To filter web content"
+                ],
+                correct: 1,
+                category: "Networking Overview"
+            },
+            {
+                question: "Which network device operates at Layer 2 of the OSI model?",
+                options: [
+                    "Router",
+                    "Switch",
+                    "Hub",
+                    "Firewall"
+                ],
+                correct: 1,
+                category: "Networking Hardware"
+            },
+            {
+                question: "What is the maximum data transfer rate of a standard Gigabit Ethernet connection?",
+                options: [
+                    "10 Mbps",
+                    "100 Mbps",
+                    "1000 Mbps",
+                    "10000 Mbps"
+                ],
+                correct: 2,
+                category: "Networking Hardware"
+            },
+            {
+                question: "Which network topology connects all devices to a central device?",
+                options: [
+                    "Bus",
+                    "Ring",
+                    "Star",
+                    "Mesh"
+                ],
+                correct: 2,
+                category: "Networking Overview"
+            },
+            {
+                question: "What is the purpose of a firewall in a network?",
+                options: [
+                    "To increase network speed",
+                    "To monitor and control incoming and outgoing network traffic",
+                    "To assign IP addresses",
+                    "To provide wireless connectivity"
+                ],
+                correct: 1,
+                category: "Networking Hardware"
+            },
+            
+            // Network Cables & Wireless
+            {
+                question: "Which category of Ethernet cable is required for 10 Gigabit speeds over short distances?",
+                options: [
+                    "Cat 5e",
+                    "Cat 6",
+                    "Cat 6a",
+                    "Cat 7"
+                ],
+                correct: 2,
+                category: "Network Cables"
+            },
+            {
+                question: "What wireless standard operates in the 5 GHz frequency band and provides speeds up to 3.5 Gbps?",
+                options: [
+                    "802.11a",
+                    "802.11n",
+                    "802.11ac",
+                    "802.11ax"
+                ],
+                correct: 3,
+                category: "Wireless"
+            },
+            {
+                question: "Which type of network cable is most susceptible to electromagnetic interference (EMI)?",
+                options: [
+                    "Fiber optic",
+                    "Shielded twisted pair",
+                    "Unshielded twisted pair",
+                    "Coaxial"
+                ],
+                correct: 2,
+                category: "Network Cables"
+            },
+            {
+                question: "What is the maximum theoretical range of a typical Wi-Fi network in an open environment?",
+                options: [
+                    "30 meters",
+                    "100 meters",
+                    "300 meters",
+                    "1 kilometer"
+                ],
+                correct: 1,
+                category: "Wireless"
+            },
+            {
+                question: "Which wireless security protocol is currently considered the most secure?",
+                options: [
+                    "WEP",
+                    "WPA",
+                    "WPA2",
+                    "WPA3"
+                ],
+                correct: 3,
+                category: "Wireless"
+            },
+            
+            // Internet Connections & Protocols
+            {
+                question: "Which protocol is used for secure web browsing?",
+                options: [
+                    "HTTP",
+                    "HTTPS",
+                    "FTP",
+                    "SMTP"
+                ],
+                correct: 1,
+                category: "Internet Protocols"
+            },
+            {
+                question: "What is the primary function of DNS?",
+                options: [
+                    "To assign IP addresses",
+                    "To translate domain names to IP addresses",
+                    "To encrypt data transmissions",
+                    "To route network traffic"
+                ],
+                correct: 1,
+                category: "Internet Protocols"
+            },
+            {
+                question: "Which type of internet connection uses telephone lines and provides speeds up to 24 Mbps?",
+                options: [
+                    "DSL",
+                    "Cable",
+                    "Fiber optic",
+                    "Satellite"
+                ],
+                correct: 0,
+                category: "Internet Connections"
+            },
+            {
+                question: "What protocol is used for sending email?",
+                options: [
+                    "POP3",
+                    "IMAP",
+                    "SMTP",
+                    "HTTP"
+                ],
+                correct: 2,
+                category: "Internet Protocols"
+            },
+            {
+                question: "Which internet connection technology typically offers the highest speeds?",
+                options: [
+                    "DSL",
+                    "Cable",
+                    "Fiber optic",
+                    "Dial-up"
+                ],
+                correct: 2,
+                category: "Internet Connections"
+            },
+            
+            // IP Addressing & Configuration
+            {
+                question: "What is the default subnet mask for a Class C IP address?",
+                options: [
+                    "255.0.0.0",
+                    "255.255.0.0",
+                    "255.255.255.0",
+                    "255.255.255.255"
+                ],
+                correct: 2,
+                category: "IP Addressing"
+            },
+            {
+                question: "Which IP address range is reserved for private networks?",
+                options: [
+                    "192.168.0.0 to 192.168.255.255",
+                    "1.0.0.0 to 126.255.255.255",
+                    "128.0.0.0 to 191.255.255.255",
+                    "224.0.0.0 to 239.255.255.255"
+                ],
+                correct: 0,
+                category: "IP Addressing"
+            },
+            {
+                question: "What is the purpose of DHCP?",
+                options: [
+                    "To resolve domain names",
+                    "To automatically assign IP addresses",
+                    "To secure network connections",
+                    "To route network traffic"
+                ],
+                correct: 1,
+                category: "IP Configuration"
+            },
+            {
+                question: "Which command is used to display the IP configuration on a Windows computer?",
+                options: [
+                    "ipconfig",
+                    "ifconfig",
+                    "ping",
+                    "tracert"
+                ],
+                correct: 0,
+                category: "IP Configuration"
+            },
+            {
+                question: "What is the loopback IP address?",
+                options: [
+                    "0.0.0.0",
+                    "127.0.0.1",
+                    "192.168.1.1",
+                    "255.255.255.255"
+                ],
+                correct: 1,
+                category: "IP Addressing"
+            },
+            
+            // Network Troubleshooting & Host Services
+            {
+                question: "Which command is used to test connectivity between two network devices?",
+                options: [
+                    "ipconfig",
+                    "tracert",
+                    "ping",
+                    "netstat"
+                ],
+                correct: 2,
+                category: "Network Troubleshooting"
+            },
+            {
+                question: "What is the primary purpose of the tracert command?",
+                options: [
+                    "To display IP configuration",
+                    "To trace the route to a destination",
+                    "To test DNS resolution",
+                    "To display active network connections"
+                ],
+                correct: 1,
+                category: "Network Troubleshooting"
+            },
+            {
+                question: "Which network service allows multiple computers to share a single public IP address?",
+                options: [
+                    "DNS",
+                    "DHCP",
+                    "NAT",
+                    "VPN"
+                ],
+                correct: 2,
+                category: "Host Services"
+            },
+            {
+                question: "What is the first step in troubleshooting network connectivity issues?",
+                options: [
+                    "Replace the network card",
+                    "Check physical connections",
+                    "Update drivers",
+                    "Reinstall the operating system"
+                ],
+                correct: 1,
+                category: "Network Troubleshooting"
+            },
+            {
+                question: "Which protocol is used for remote server administration?",
+                options: [
+                    "HTTP",
+                    "FTP",
+                    "SSH",
+                    "SMTP"
+                ],
+                correct: 2,
+                category: "Host Services"
+            },
+            
+            // Embedded & Internet Appliances
+            {
+                question: "What is an embedded system?",
+                options: [
+                    "A computer with multiple operating systems",
+                    "A dedicated computer system designed for specific functions",
+                    "A network server",
+                    "A virtual machine"
+                ],
+                correct: 1,
+                category: "Embedded Systems"
+            },
+            {
+                question: "Which of the following is an example of an IoT (Internet of Things) device?",
+                options: [
+                    "Desktop computer",
+                    "Smart thermostat",
+                    "Laptop",
+                    "Network switch"
+                ],
+                correct: 1,
+                category: "Internet Appliances"
+            },
+            {
+                question: "What is the primary advantage of embedded systems?",
+                options: [
+                    "High processing power",
+                    "Low cost and energy efficiency",
+                    "Large storage capacity",
+                    "Easy upgradability"
+                ],
+                correct: 1,
+                category: "Embedded Systems"
+            },
+            {
+                question: "Which communication protocol is commonly used in IoT devices?",
+                options: [
+                    "HTTP",
+                    "MQTT",
+                    "FTP",
+                    "SMTP"
+                ],
+                correct: 1,
+                category: "Internet Appliances"
+            },
+            {
+                question: "What is firmware in the context of embedded systems?",
+                options: [
+                    "Application software",
+                    "Operating system",
+                    "Permanent software programmed into a hardware device",
+                    "Device drivers"
+                ],
+                correct: 2,
+                category: "Embedded Systems"
+            },
+            
+            // Virtualization
+            {
+                question: "What is the primary benefit of server virtualization?",
+                options: [
+                    "Increased physical security",
+                    "Better hardware performance",
+                    "Consolidation of multiple servers onto fewer physical machines",
+                    "Reduced software licensing costs"
+                ],
+                correct: 2,
+                category: "Virtualization"
+            },
+            {
+                question: "Which component is required to run virtual machines on a computer?",
+                options: [
+                    "Multiple CPUs",
+                    "Hardware virtualization support",
+                    "Specialized graphics card",
+                    "Solid state drive"
+                ],
+                correct: 1,
+                category: "Virtualization"
+            },
+            {
+                question: "What is a hypervisor in virtualization?",
+                options: [
+                    "A virtual machine",
+                    "Software that creates and runs virtual machines",
+                    "A virtual network switch",
+                    "A virtual storage device"
+                ],
+                correct: 1,
+                category: "Virtualization"
+            },
+            {
+                question: "Which type of virtualization allows multiple operating systems to run simultaneously on a single physical machine?",
+                options: [
+                    "Application virtualization",
+                    "Desktop virtualization",
+                    "Server virtualization",
+                    "Network virtualization"
+                ],
+                correct: 2,
+                category: "Virtualization"
+            },
+            {
+                question: "What is the purpose of a virtual switch in virtualization?",
+                options: [
+                    "To connect virtual machines to each other and to physical networks",
+                    "To allocate CPU resources",
+                    "To manage virtual storage",
+                    "To provide virtual graphics"
+                ],
+                correct: 0,
+                category: "Virtualization"
+            },
+            
+            // Cloud Concepts
+            {
+                question: "Which cloud service model provides virtualized computing resources over the internet?",
+                options: [
+                    "IaaS",
+                    "PaaS",
+                    "SaaS",
+                    "DaaS"
+                ],
+                correct: 0,
+                category: "Cloud Concepts"
+            },
+            {
+                question: "What is the primary advantage of public cloud computing?",
+                options: [
+                    "Complete control over infrastructure",
+                    "Lower upfront costs and scalability",
+                    "Enhanced security",
+                    "Better performance"
+                ],
+                correct: 1,
+                category: "Cloud Concepts"
+            },
+            {
+                question: "Which cloud deployment model is operated exclusively for a single organization?",
+                options: [
+                    "Public cloud",
+                    "Private cloud",
+                    "Hybrid cloud",
+                    "Community cloud"
+                ],
+                correct: 1,
+                category: "Cloud Concepts"
+            },
+            {
+                question: "What is the primary characteristic of cloud computing that allows resources to be scaled up or down quickly?",
+                options: [
+                    "On-demand self-service",
+                    "Broad network access",
+                    "Resource pooling",
+                    "Rapid elasticity"
+                ],
+                correct: 3,
+                category: "Cloud Concepts"
+            },
+            {
+                question: "Which cloud service model provides ready-to-use software applications over the internet?",
+                options: [
+                    "IaaS",
+                    "PaaS",
+                    "SaaS",
+                    "CaaS"
+                ],
+                correct: 2,
+                category: "Cloud Concepts"
+            },
+            
+            // Supporting Mobile Devices
+            {
+                question: "What is the most common operating system found on smartphones?",
+                options: [
+                    "Windows",
+                    "macOS",
+                    "Android",
+                    "Linux"
+                ],
+                correct: 2,
+                category: "Mobile Devices"
+            },
+            {
+                question: "Which mobile device feature allows users to make payments by tapping their device on a payment terminal?",
+                options: [
+                    "Bluetooth",
+                    "NFC",
+                    "Wi-Fi Direct",
+                    "GPS"
+                ],
+                correct: 1,
+                category: "Mobile Devices"
+            },
+            {
+                question: "What is the primary purpose of MDM (Mobile Device Management) software?",
+                options: [
+                    "To increase device performance",
+                    "To secure, monitor, and manage mobile devices",
+                    "To extend battery life",
+                    "To improve camera quality"
+                ],
+                correct: 1,
+                category: "Mobile Devices"
+            },
+            {
+                question: "Which mobile device component is responsible for determining the device's location?",
+                options: [
+                    "Accelerometer",
+                    "Gyroscope",
+                    "GPS receiver",
+                    "Proximity sensor"
+                ],
+                correct: 2,
+                category: "Mobile Devices"
+            },
+            {
+                question: "What is the primary difference between a smartphone and a tablet?",
+                options: [
+                    "Operating system",
+                    "Screen size and cellular capability",
+                    "Processor speed",
+                    "Storage capacity"
+                ],
+                correct: 1,
+                category: "Mobile Devices"
+            },
+            
+            // Mobile Apps & Data
+            {
+                question: "What is the primary purpose of app sandboxing on mobile devices?",
+                options: [
+                    "To improve app performance",
+                    "To isolate apps and prevent them from accessing each other's data",
+                    "To reduce battery consumption",
+                    "To increase storage space"
+                ],
+                correct: 1,
+                category: "Mobile Apps & Data"
+            },
+            {
+                question: "Which mobile synchronization protocol is commonly used for email, contacts, and calendars?",
+                options: [
+                    "HTTP",
+                    "FTP",
+                    "Exchange ActiveSync",
+                    "SSH"
+                ],
+                correct: 2,
+                category: "Mobile Apps & Data"
+            },
+            {
+                question: "What is the primary purpose of mobile device encryption?",
+                options: [
+                    "To increase processing speed",
+                    "To protect data from unauthorized access",
+                    "To extend battery life",
+                    "To improve signal strength"
+                ],
+                correct: 1,
+                category: "Mobile Apps & Data"
+            },
+            {
+                question: "Which type of mobile app is installed directly on the device and can access device hardware?",
+                options: [
+                    "Web app",
+                    "Hybrid app",
+                    "Native app",
+                    "Progressive web app"
+                ],
+                correct: 2,
+                category: "Mobile Apps & Data"
+            },
+            {
+                question: "What is the purpose of two-factor authentication on mobile devices?",
+                options: [
+                    "To increase device performance",
+                    "To add an extra layer of security beyond just a password",
+                    "To reduce data usage",
+                    "To improve battery life"
+                ],
+                correct: 1,
+                category: "Mobile Apps & Data"
+            },
+            
+            // Troubleshooting Mobile Devices
+            {
+                question: "What is the first step in troubleshooting a mobile device that won't turn on?",
+                options: [
+                    "Perform a factory reset",
+                    "Replace the battery",
+                    "Charge the device and check for physical damage",
+                    "Update the operating system"
+                ],
+                correct: 2,
+                category: "Mobile Troubleshooting"
+            },
+            {
+                question: "Which mobile device issue is most commonly caused by a corrupted app cache?",
+                options: [
+                    "Battery drain",
+                    "App crashes and slow performance",
+                    "Poor signal strength",
+                    "Camera not working"
+                ],
+                correct: 1,
+                category: "Mobile Troubleshooting"
+            },
+            {
+                question: "What is the purpose of recovery mode on mobile devices?",
+                options: [
+                    "To improve battery performance",
+                    "To troubleshoot and repair the operating system",
+                    "To increase storage space",
+                    "To enhance camera quality"
+                ],
+                correct: 1,
+                category: "Mobile Troubleshooting"
+            },
+            {
+                question: "Which mobile device symptom typically indicates a failing battery?",
+                options: [
+                    "App crashes",
+                    "Poor signal strength",
+                    "Rapid battery drain and unexpected shutdowns",
+                    "Overheating during charging"
+                ],
+                correct: 2,
+                category: "Mobile Troubleshooting"
+            },
+            {
+                question: "What is the last resort when troubleshooting a mobile device with persistent software issues?",
+                options: [
+                    "Restarting the device",
+                    "Clearing app cache",
+                    "Performing a factory reset",
+                    "Updating apps"
+                ],
+                correct: 2,
+                category: "Mobile Troubleshooting"
+            },
+            
+            // Printers: Types & Setup
+            {
+                question: "Which type of printer uses toner powder and a laser to create images?",
+                options: [
+                    "Inkjet",
+                    "Dot matrix",
+                    "Laser",
+                    "Thermal"
+                ],
+                correct: 2,
+                category: "Printers"
+            },
+            {
+                question: "What is the primary advantage of a laser printer over an inkjet printer?",
+                options: [
+                    "Lower initial cost",
+                    "Better color printing",
+                    "Faster printing speed and lower cost per page",
+                    "Smaller physical size"
+                ],
+                correct: 2,
+                category: "Printers"
+            },
+            {
+                question: "Which printer type is commonly used for printing multipart forms and receipts?",
+                options: [
+                    "Inkjet",
+                    "Laser",
+                    "Dot matrix",
+                    "3D printer"
+                ],
+                correct: 2,
+                category: "Printers"
+            },
+            {
+                question: "What is the purpose of a print server?",
+                options: [
+                    "To store print jobs",
+                    "To manage and share printers across a network",
+                    "To improve print quality",
+                    "To reduce printer maintenance"
+                ],
+                correct: 1,
+                category: "Printers"
+            },
+            {
+                question: "Which printer connectivity option allows wireless printing without a network?",
+                options: [
+                    "Ethernet",
+                    "USB",
+                    "Bluetooth",
+                    "Parallel port"
+                ],
+                correct: 2,
+                category: "Printers"
+            },
+            
+            // Printer Maintenance & Troubleshooting
+            {
+                question: "What is the most common cause of streaks or lines on printed pages from a laser printer?",
+                options: [
+                    "Empty toner cartridge",
+                    "Worn transfer roller",
+                    "Dirty or damaged fuser unit",
+                    "Low paper quality"
+                ],
+                correct: 2,
+                category: "Printer Maintenance"
+            },
+            {
+                question: "Which printer component should be cleaned regularly to prevent paper jams?",
+                options: [
+                    "Toner cartridge",
+                    "Fuser unit",
+                    "Paper feed rollers",
+                    "Transfer belt"
+                ],
+                correct: 2,
+                category: "Printer Maintenance"
+            },
+            {
+                question: "What is the first step in troubleshooting a printer that won't print?",
+                options: [
+                    "Replace the ink/toner cartridge",
+                    "Check that the printer is powered on and connected",
+                    "Reinstall the printer driver",
+                    "Restart the computer"
+                ],
+                correct: 1,
+                category: "Printer Troubleshooting"
+            },
+            {
+                question: "Which printer issue is typically caused by clogged print nozzles?",
+                options: [
+                    "Paper jams",
+                    "Faded print or missing colors",
+                    "Creased pages",
+                    "Slow printing speed"
+                ],
+                correct: 1,
+                category: "Printer Troubleshooting"
+            },
+            {
+                question: "What is the purpose of calibrating a printer?",
+                options: [
+                    "To clean the print heads",
+                    "To ensure accurate color reproduction",
+                    "To increase printing speed",
+                    "To reduce paper usage"
+                ],
+                correct: 1,
+                category: "Printer Maintenance"
+            },
+            
+            // Final Review - Hardware & Networking
+            {
+                question: "Which command is used to test DNS resolution?",
+                options: [
+                    "ping",
+                    "tracert",
+                    "nslookup",
+                    "ipconfig"
+                ],
+                correct: 2,
+                category: "Final Review"
+            },
+            {
+                question: "What is the primary function of the Northbridge on a motherboard?",
+                options: [
+                    "To manage I/O devices",
+                    "To control memory and high-speed components",
+                    "To provide BIOS functionality",
+                    "To manage power distribution"
+                ],
+                correct: 1,
+                category: "Final Review"
+            },
+            {
+                question: "Which type of RAM is non-volatile and retains data without power?",
+                options: [
+                    "DRAM",
+                    "SRAM",
+                    "NVRAM",
+                    "SDRAM"
+                ],
+                correct: 2,
+                category: "Final Review"
+            },
+            {
+                question: "What is the maximum length for a Cat 6 Ethernet cable?",
+                options: [
+                    "50 meters",
+                    "100 meters",
+                    "185 meters",
+                    "500 meters"
+                ],
+                correct: 1,
+                category: "Final Review"
+            },
+            {
+                question: "Which Windows feature allows you to roll back system changes?",
+                options: [
+                    "System Restore",
+                    "System File Checker",
+                    "Disk Cleanup",
+                    "Device Manager"
+                ],
+                correct: 0,
+                category: "Final Review"
+            }
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let shuffledQuestions = [];
+        let selectedOption = null;
+
+        // Initialize quiz
+        function initQuiz() {
+            // Shuffle questions
+            shuffledQuestions = [...quizQuestions].sort(() => Math.random() - 0.5);
+            
+            // Update total questions display
+            document.getElementById('totalQuestions').textContent = shuffledQuestions.length;
+            
+            // Load first question
+            loadQuestion();
+        }
+
+        // Load current question
+        function loadQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            
+            // Update question number and progress
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+            document.getElementById('categoryBadge').textContent = question.category;
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            
+            // Update question text
+            document.getElementById('questionText').textContent = question.question;
+            
+            // Clear and populate options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                    <div>${option}</div>
+                `;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Reset state
+            selectedOption = null;
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        // Handle option selection
+        function selectOption(index) {
+            // If already answered, do nothing
+            if (selectedOption !== null) return;
+            
+            selectedOption = index;
+            const question = shuffledQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            // Mark selected option
+            options[index].classList.add('selected');
+            
+            // Show correct/incorrect
+            if (index === question.correct) {
+                options[index].classList.add('correct');
+                score++;
+                document.getElementById('scoreDisplay').textContent = score;
+            } else {
+                options[index].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+            }
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+            
+            // Disable all options
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+        }
+
+        // Handle next button click
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // Show quiz results
+        function showResults() {
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            let message = '';
+            
+            if (percentage >= 90) {
+                message = 'Excellent! You have mastered CompTIA Core+ concepts!';
+            } else if (percentage >= 80) {
+                message = 'Great job! You have a strong understanding of the material.';
+            } else if (percentage >= 70) {
+                message = 'Good effort! Review some areas to improve your knowledge.';
+            } else if (percentage >= 60) {
+                message = 'Fair attempt. Consider studying more before taking the certification exam.';
+            } else {
+                message = 'Keep studying! Focus on the fundamentals and try again.';
+            }
+            
+            document.getElementById('finalScore').textContent = `${percentage}%`;
+            document.getElementById('resultsMessage').textContent = message;
+            
+            // Hide quiz body and show results
+            document.getElementById('quizBody').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'block';
+        }
+
+        // Initialize quiz when page loads
+        window.addEventListener('load', initQuiz);
+    </script>
+</body>
+</html>
